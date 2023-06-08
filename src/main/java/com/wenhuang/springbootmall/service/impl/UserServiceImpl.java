@@ -1,6 +1,7 @@
 package com.wenhuang.springbootmall.service.impl;
 
 import com.wenhuang.springbootmall.dao.UserDao;
+import com.wenhuang.springbootmall.dto.UserLoginRequest;
 import com.wenhuang.springbootmall.dto.UserRegisterRequest;
 import com.wenhuang.springbootmall.model.User;
 import com.wenhuang.springbootmall.service.UserService;
@@ -36,5 +37,23 @@ public class UserServiceImpl implements UserService {
 
         //create a new user
         return userDao.createUser(userRegisterRequest);
+    }
+
+    @Override
+    public User login(UserLoginRequest userLoginRequest) {
+        User user = userDao.getUserByEmail(userLoginRequest.getEmail());
+
+        if (user == null) {
+            log.warn("this email {} has not been registered", userLoginRequest.getEmail());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if (user.getPassword().equals(userLoginRequest.getPassword())) {
+            return user;
+        } else {
+            log.warn("password for email {} is not correct", userLoginRequest.getEmail());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
     }
 }
